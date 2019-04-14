@@ -13,12 +13,11 @@
  */
 import Rect from './Rect';
 
-const Best = 0; // Try to use all heuristics, chose the best one.
-const ShortSideFit = 1; // /< -BSSF: Positions the Rectangle against the short side of a free Rectangle into which it fits the best.
-const LongSideFit = 2; // /< -BLSF: Positions the Rectangle against the long side of a free Rectangle into which it fits the best.
-const AreaFit = 3; // /< -BAF: Positions the Rectangle into the smallest free Rectangle into which it fits.
-const BottomLeft = 4; // /< -BL: Does the Tetris placement.
-const ContactPoint = 5; // /< -CP: Choosest the placement where the Rectangle touches other Rectangles as much as possible.
+const ShortSideFit = 'ShortSideFit'; // Positions the Rectangle against the short side of a free Rectangle into which it fits the best.
+const LongSideFit = 'LongSideFit'; // Positions the Rectangle against the long side of a free Rectangle into which it fits the best.
+const AreaFit = 'AreaFit'; // Positions the Rectangle into the smallest free Rectangle into which it fits.
+const BottomLeft = 'BottomLeft'; // Does the Tetris placement.
+const ContactPoint = 'ContactPoint'; // Choosest the placement where the Rectangle touches other Rectangles as much as possible.
 
 /**
  * MaxRectanglesBinPack
@@ -26,13 +25,13 @@ const ContactPoint = 5; // /< -CP: Choosest the placement where the Rectangle to
 class MaxRectsBinPack {
     /**
      * @constructor
-     * @param {Number} maxWidth The max width of container
-     * @param {Number} maxHeight The max height of container
-     * @param {Object} options of packing:
-     *     allowRotate:  allow rotate the rects
-     *     pot:  use power of 2 sizing
-     *     square:  use square size
-     *     padding:  the border padidng of each eectangle
+     * @param {Number} maxWidth - The max width of container
+     * @param {Number} maxHeight - The max height of container
+     * @param {Object} options - options of packing:
+     *        allowRotate:  allow rotate the rects
+     *        pot:  use power of 2 sizing
+     *        square:  use square size
+     *        padding:  the border padidng of each eectangle
      */
     constructor(maxWidth, maxHeight, options) {
         Object.assign(this, {
@@ -50,13 +49,13 @@ class MaxRectsBinPack {
 
     /**
      * @constructor
-     * @param {Number} maxWidth The max width of container
-     * @param {Number} maxHeight The max height of container
-     * @param {Object} options of packing:
-     *     allowRotate:  allow rotate the rects
-     *     pot:  use power of 2 sizing
-     *     square:  use square size
-     *     padding:  the border padidng of each eectangle
+     * @param {Number} maxWidth - The max width of container
+     * @param {Number} maxHeight - The max height of container
+     * @param {Object} options - options of packing:
+     *        allowRotate:  allow rotate the rects
+     *        pot:  use power of 2 sizing
+     *        square:  use square size
+     *        padding:  the border padidng of each eectangle
      */
     init(maxWidth, maxHeight, options) {
         this.maxWidth = maxWidth;
@@ -64,17 +63,20 @@ class MaxRectsBinPack {
 
         Object.assign(this, options);
 
+        this.reset();
+    }
+
+    reset() {
         this.usedRectangles.length = 0;
         this.freeRectangles.length = 0;
-
-        this.freeRectangles.push(new Rect(0, 0, maxWidth, maxHeight));
+        this.freeRectangles.push(new Rect(0, 0, this.maxWidth, this.maxHeight));
     }
 
     /**
      * insert a new rect
-     * @param  {Number} width  The width of the rect
-     * @param  {Number} height The height of the rect
-     * @param  {Number} method The pack rule, allow value is Best, ShortSideFit, LongSideFit, AreaFit, BottomLeft, ContactPoint
+     * @param  {Number} width - The width of the rect
+     * @param  {Number} height - The height of the rect
+     * @param  {String} method - The pack rule, allow value is ShortSideFit, LongSideFit, AreaFit, BottomLeft, ContactPoint
      * @return {Rect}
      */
     insert(width, height, method) {
@@ -96,17 +98,17 @@ class MaxRectsBinPack {
             case ShortSideFit:
                 newNode = this._findPositionForNewNodeShortSideFit(width, height, score1, score2);
                 break;
-            case BottomLeft:
-                newNode = this._findPositionForNewNodeBottomLeft(width, height, score1, score2);
-                break;
-            case ContactPoint:
-                newNode = this._findPositionForNewNodeContactPoint(width, height, score1);
-                break;
             case LongSideFit:
                 newNode = this._findPositionForNewNodeLongSideFit(width, height, score2, score1);
                 break;
             case AreaFit:
                 newNode = this._findPositionForNewNodeAreaFit(width, height, score1, score2);
+                break;
+            case BottomLeft:
+                newNode = this._findPositionForNewNodeBottomLeft(width, height, score1, score2);
+                break;
+            case ContactPoint:
+                newNode = this._findPositionForNewNodeContactPoint(width, height, score1);
                 break;
             default:
                 break;
@@ -120,18 +122,73 @@ class MaxRectsBinPack {
         return newNode;
     }
 
+    _cloneRectangles(rectangles) {
+        const newRects = [];
+
+        rectangles.forEach((r, index) => {
+            newRects.push({
+                x: r.x,
+                y: r.y,
+                width: r.width,
+                height: r.height,
+                _index: index,
+            });
+        });
+
+        return newRects;
+    }
+
     /**
      * Insert a set of rectangles
-     * @param  {Rect[]} rectangles The set of rects, allow custum property.
-     * @param  {Number} method The pack rule, allow value is ShortSideFit, LongSideFit, AreaFit, BottomLeft, ContactPoint
+     * @param  {Rect[]} rectangles - The set of rects, allow custum property.
+     * @param  {String} method - The pack rule, allow value is ShortSideFit, LongSideFit, AreaFit, BottomLeft, ContactPoint
+     *         If don't pass method, will try all methods, then chose the best one.
      * @return {Rect[]} The result of bin pack.
      */
     insertRects(rectangles, method) {
+        if (!method) {
+            const methodList = [
+                ShortSideFit,
+                LongSideFit,
+                AreaFit,
+                BottomLeft,
+                ContactPoint,
+            ];
+            const resultList = [];
+
+            methodList.forEach((method, index) => {
+                const rectList = this._cloneRectangles(rectangles);
+                this.reset();
+                const result = this.insertRects(rectList, method);
+                result._methodIndex = index;
+
+                if (result.done) {
+                    resultList.push(result);
+
+                    // console.log(result.method, result.realWidth, result.realHeight);
+                }
+            });
+
+            resultList.sort((a, b) => {
+                let d = 0;
+                d = d || a.binArea - b.binArea;
+                d = d || a.realArea - b.realArea;
+                d = d || a.area - b.area;
+                return d;
+            });
+
+            const bestRsult = resultList[0];
+
+            this.reset();
+            return this.insertRects(rectangles, methodList[bestRsult._methodIndex]);
+        }
+
         let realWidth = -1;
         let realHeight = -1;
 
         const result = {
             rects: [],
+            method,
             width: realWidth,
             height: realHeight,
             realWidth,
@@ -208,15 +265,19 @@ class MaxRectsBinPack {
             }
         }
 
-
         result.realWidth = realWidth;
         result.realHeight = realHeight;
+        result.realArea = realWidth * realHeight;
+
+        const wp = Math.ceil(Math.log(realWidth) / Math.log(2));
+        const hp = Math.ceil(Math.log(realHeight) / Math.log(2));
+        result.binWidth = 2 ** wp;
+        result.binHeight = 2 ** hp;
+        result.binArea = result.binWidth * result.binHeight;
 
         if (this.pot) {
-            const wp = Math.ceil(Math.log(realWidth) / Math.log(2));
-            const hp = Math.ceil(Math.log(realHeight) / Math.log(2));
-            result.width = wp ** 2;
-            result.height = hp ** 2;
+            result.width = result.binWidth;
+            result.height = result.binHeight;
         } else {
             result.width = realWidth;
             result.height = realHeight;
@@ -226,6 +287,8 @@ class MaxRectsBinPack {
             result.width = Math.max(result.width, result.height);
             result.height = Math.max(result.width, result.height);
         }
+
+        result.area = result.width * result.height;
 
         return result;
     }
@@ -252,19 +315,19 @@ class MaxRectsBinPack {
             case ShortSideFit:
                 newNode = this._findPositionForNewNodeShortSideFit(width, height, score1, score2);
                 break;
+            case LongSideFit:
+                newNode = this._findPositionForNewNodeLongSideFit(width, height, score2, score1);
+                break;
+            case AreaFit:
+                newNode = this._findPositionForNewNodeAreaFit(width, height, score1, score2);
+                break;
             case BottomLeft:
                 newNode = this._findPositionForNewNodeBottomLeft(width, height, score1, score2);
                 break;
             case ContactPoint:
                 newNode = this._findPositionForNewNodeContactPoint(width, height, score1);
                 // todo: reverse
-                score1 = -score1; // Reverse since we are minimizing, but for contact point score bigger is better.
-                break;
-            case LongSideFit:
-                newNode = this._findPositionForNewNodeLongSideFit(width, height, score2, score1);
-                break;
-            case AreaFit:
-                newNode = this._findPositionForNewNodeAreaFit(width, height, score1, score2);
+                score1.value = -score1.value; // Reverse since we are minimizing, but for contact point score bigger is better.
                 break;
             default:
                 break;
@@ -614,7 +677,6 @@ export {
     Rect,
 
     // Heuristics
-    Best,
     ShortSideFit,
     LongSideFit,
     AreaFit,

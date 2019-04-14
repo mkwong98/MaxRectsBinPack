@@ -1,11 +1,15 @@
 const MaxRectsBinPack = require("../build/MaxRectsBinPack.js");
 
-const pack = new MaxRectsBinPack.Packer(512, 256, {
+const maxWidth = 512;
+const maxHeight = 256;
+
+const pack = new MaxRectsBinPack.Packer(maxWidth, maxHeight, {
      allowRotate: true,
-     // pot: true,
+     pot: true,
      // square: true,
-     // padding: true,
+     // padding: 0,
 });
+
 const rectangles = [{
     width: 20,
     height: 100,

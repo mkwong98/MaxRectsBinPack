@@ -393,26 +393,20 @@ class MaxRectsBinPack {
                     bestLongSideFit.value = longSideFit;
                 }
             }
-            let flippedLeftoverHoriz;
-            let flippedLeftoverVert;
-            let flippedShortSideFit;
-            let flippedLongSideFit;
 
-            // bestNode.rotated = false;
             if (this.allowRotate && rect.width >= height && rect.height >= width) {
-                flippedLeftoverHoriz = Math.abs(rect.width - height);
-                flippedLeftoverVert = Math.abs(rect.height - width);
-                flippedShortSideFit = Math.min(flippedLeftoverHoriz, flippedLeftoverVert);
-                flippedLongSideFit = Math.max(flippedLeftoverHoriz, flippedLeftoverVert);
+                leftoverHoriz = Math.abs(rect.width - height);
+                leftoverVert = Math.abs(rect.height - width);
+                shortSideFit = Math.min(leftoverHoriz, leftoverVert);
+                longSideFit = Math.max(leftoverHoriz, leftoverVert);
 
-                if (flippedShortSideFit < bestShortSideFit.value || (flippedShortSideFit === bestShortSideFit.value && flippedLongSideFit < bestLongSideFit.value)) {
+                if (shortSideFit < bestShortSideFit.value || (shortSideFit === bestShortSideFit.value && longSideFit < bestLongSideFit.value)) {
                     bestNode.x = rect.x;
                     bestNode.y = rect.y;
                     bestNode.width = height;
                     bestNode.height = width;
-                    // bestNode.rotated = true;
-                    bestShortSideFit.value = flippedShortSideFit;
-                    bestLongSideFit.value = flippedLongSideFit;
+                    bestShortSideFit.value = shortSideFit;
+                    bestLongSideFit.value = longSideFit;
                 }
             }
         }
@@ -423,13 +417,15 @@ class MaxRectsBinPack {
     _findPositionForNewNodeLongSideFit(width, height, bestShortSideFit, bestLongSideFit) {
         const freeRectangles = this.freeRectangles;
         const bestNode = new Rect();
-        bestLongSideFit.value = Infinity;
-        let rect;
 
+        bestLongSideFit.value = Infinity;
+
+        let rect;
         let leftoverHoriz;
         let leftoverVert;
         let shortSideFit;
         let longSideFit;
+
         for (let i = 0; i < freeRectangles.length; i++) {
             rect = freeRectangles[i];
             // Try to place the Rectangle in upright (non-flipped) orientation.
@@ -449,7 +445,6 @@ class MaxRectsBinPack {
                 }
             }
 
-            // bestNode.rotated = false;
             if (this.allowRotate && rect.width >= height && rect.height >= width) {
                 leftoverHoriz = Math.abs(rect.width - height);
                 leftoverVert = Math.abs(rect.height - width);
@@ -461,7 +456,6 @@ class MaxRectsBinPack {
                     bestNode.y = rect.y;
                     bestNode.width = height;
                     bestNode.height = width;
-                    // bestNode.rotated = true;
                     bestShortSideFit.value = shortSideFit;
                     bestLongSideFit.value = longSideFit;
                 }
@@ -503,7 +497,6 @@ class MaxRectsBinPack {
                 }
             }
 
-            // bestNode.rotated = false;
             if (this.allowRotate && rect.width >= height && rect.height >= width) {
                 leftoverHoriz = Math.abs(rect.width - height);
                 leftoverVert = Math.abs(rect.height - width);
@@ -514,7 +507,6 @@ class MaxRectsBinPack {
                     bestNode.y = rect.y;
                     bestNode.width = height;
                     bestNode.height = width;
-                    // bestNode.rotated = true;
                     bestShortSideFit.value = shortSideFit;
                     bestAreaFit.value = areaFit;
                 }
@@ -546,7 +538,6 @@ class MaxRectsBinPack {
                 }
             }
 
-            // bestNode.rotated = false;
             if (this.allowRotate && rect.width >= height && rect.height >= width) {
                 topSideY = rect.y + width;
                 if (topSideY < bestY.value || (topSideY === bestY.value && rect.x < bestX.value)) {
@@ -554,7 +545,6 @@ class MaxRectsBinPack {
                     bestNode.y = rect.y;
                     bestNode.width = height;
                     bestNode.height = width;
-                    // bestNode.rotated = true;
                     bestY.value = topSideY;
                     bestX.value = rect.x;
                 }
@@ -585,7 +575,6 @@ class MaxRectsBinPack {
                 }
             }
 
-            // bestNode.rotated = false;
             if (this.allowRotate && rect.width >= height && rect.height >= width) {
                 score = this._contactPointScoreNode(rect.x, rect.y, height, width);
                 if (score > bestContactScore.value) {
@@ -593,7 +582,6 @@ class MaxRectsBinPack {
                     bestNode.y = rect.y;
                     bestNode.width = height;
                     bestNode.height = width;
-                    // bestNode.rotated = true;
                     bestContactScore.value = score;
                 }
             }

@@ -1,6 +1,6 @@
 {
   "name": "rects-bin-pack",
-  "version": "0.1.2",
+  "version": "0.2.1",
   "main": "build/MaxRectsBinPack.js",
   "description": "MaxRects Algorithm javascript implementation",
   "scripts": {
@@ -19,7 +19,7 @@
     "rect",
     "texture"
   ],
-  "author": "06wj",
+  "author": "06wj, finscn",
   "license": "MIT",
   "runkitExampleFilename": "demo/runkit.js",
   "devDependencies": {

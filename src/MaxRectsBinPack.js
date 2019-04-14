@@ -246,16 +246,23 @@ class MaxRectsBinPack {
 
             const rect = rectangles.splice(bestRectangleIndex, 1)[0];
 
+            const packedInfo = {
+                x: bestNode.x,
+                y: bestNode.y,
+                width: bestNode.width,
+                height: bestNode.height,
+            };
+
             rect.x = bestNode.x;
             rect.y = bestNode.y;
             if (rect.width !== bestNode.width || rect.height !== bestNode.height) {
-                rect.width = bestNode.width;
-                rect.height = bestNode.height;
-                rect.rotated = true;
+                packedInfo.rotated = true;
             }
 
-            realWidth = Math.max(realWidth, rect.x + rect.width);
-            realHeight = Math.max(realHeight, rect.y + rect.height);
+            realWidth = Math.max(realWidth, packedInfo.x + packedInfo.width);
+            realHeight = Math.max(realHeight, packedInfo.y + packedInfo.height);
+
+            rect.packedInfo = packedInfo;
 
             result.rects.push(rect);
         }
@@ -269,10 +276,14 @@ class MaxRectsBinPack {
         if (this.padding) {
             for (let i = 0; i < packedCount; i++) {
                 const rect = result.rects[i];
-                rect.x += this.padding;
-                rect.y += this.padding;
                 rect.width -= this.padding * 2;
                 rect.height -= this.padding * 2;
+
+                const packedInfo = rect.packedInfo;
+                packedInfo.x += this.padding;
+                packedInfo.y += this.padding;
+                packedInfo.width -= this.padding * 2;
+                packedInfo.height -= this.padding * 2;
             }
         }
 
@@ -615,8 +626,8 @@ class MaxRectsBinPack {
     _splitFreeNode(freeNode, usedNode) {
         const freeRectangles = this.freeRectangles;
         // Test with SAT if the Rectangles even intersect.
-        if (usedNode.x >= freeNode.x + freeNode.width || usedNode.x + usedNode.width <= freeNode.x
-            || usedNode.y >= freeNode.y + freeNode.height || usedNode.y + usedNode.height <= freeNode.y) return false;
+        if (usedNode.x >= freeNode.x + freeNode.width || usedNode.x + usedNode.width <= freeNode.x ||
+            usedNode.y >= freeNode.y + freeNode.height || usedNode.y + usedNode.height <= freeNode.y) return false;
         let newNode;
         if (usedNode.x < freeNode.x + freeNode.width && usedNode.x + usedNode.width > freeNode.x) {
             // New node at the top side of the used node.

@@ -1,6 +1,6 @@
-const rectsBinPack = require("rects-bin-pack")
-const MaxRectsBinPack = rectsBinPack.MaxRectsBinPack;
-const pack = new MaxRectsBinPack(512, 256, {
+const MaxRectsBinPack = require("rects-bin-pack");
+
+const pack = new MaxRectsBinPack.Packer(512, 256, {
      allowRotate: true,
      // pot: true,
      // square: true,
@@ -19,5 +19,5 @@ const rectangles = [{
     height: 70,
     id: '3'
 }];
-const result = pack.insertRects(rectangles, rectsBinPack.ShortSideFit);
+const result = pack.insertRects(rectangles, MaxRectsBinPack.ShortSideFit);
 console.log(result);

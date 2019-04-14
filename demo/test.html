@@ -61,12 +61,13 @@
         });
 
         var pack = new MaxRectsBinPack.MaxRectsBinPack(textureWidth, textureHeight, {
-             allowRotate: true,
+             // allowRotate: true,
              // pot: true,
              // square: true,
              // padding: true,
         });
-        var result = pack.insertRects(rectangles, MaxRectsBinPack.ShortSideFit);
+        // var result = pack.insertRects(rectangles, MaxRectsBinPack.ShortSideFit);
+        var result = pack.insertRects(rectangles);
 
         console.log(result)
 

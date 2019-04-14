@@ -25,3 +25,4 @@ const rectangles = [{
 }];
 const result = pack.insertRects(rectangles, MaxRectsBinPack.ShortSideFit);
 console.log(result);
+console.log(result.rects);

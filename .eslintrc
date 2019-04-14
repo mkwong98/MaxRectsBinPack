@@ -12,6 +12,7 @@
         "indent": ["error", 4, {
             "SwitchCase": 1
         }],
+        "operator-linebreak": [0, "before"],
         "prefer-template": 0,
         "no-underscore-dangle": 0,
         "arrow-body-style": 0,

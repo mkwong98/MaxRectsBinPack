@@ -1,4 +1,4 @@
-const MaxRectsBinPack = require("rects-bin-pack");
+const MaxRectsBinPack = require("../build/MaxRectsBinPack.js");
 
 const pack = new MaxRectsBinPack.Packer(512, 256, {
      allowRotate: true,

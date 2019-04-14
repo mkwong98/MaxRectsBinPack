@@ -79,10 +79,10 @@ class MaxRectsBinPack {
      * insert a new rect
      * @param  {Number} width - The width of the rect
      * @param  {Number} height - The height of the rect
-     * @param  {String} method - The pack rule, allow value is ShortSideFit, LongSideFit, AreaFit, BottomLeft, ContactPoint
+     * @param  {String} rule - The pack rule, allow value is ShortSideFit, LongSideFit, AreaFit, BottomLeft, ContactPoint
      * @return {Rect}
      */
-    insert(width, height, method) {
+    insert(width, height, rule) {
         let newNode = new Rect();
         const score1 = {
             value: 0
@@ -91,13 +91,15 @@ class MaxRectsBinPack {
         const score2 = {
             value: 0
         };
-        method = method || 0;
+
+        rule = rule || ShortSideFit;
 
         if (this.padding) {
             width += this.padding * 2;
             height += this.padding * 2;
         }
-        switch (method) {
+
+        switch (rule) {
             case ShortSideFit:
                 newNode = this._findPositionForNewNodeShortSideFit(width, height, score1, score2);
                 break;
@@ -144,13 +146,13 @@ class MaxRectsBinPack {
     /**
      * Insert a set of rectangles
      * @param  {Rect[]} rectangles - The set of rects, allow custum property.
-     * @param  {String} method - The pack rule, allow value is ShortSideFit, LongSideFit, AreaFit, BottomLeft, ContactPoint
-     *         If don't pass method, will try all methods, then chose the best one.
+     * @param  {String} rule - The pack rule, allow value is ShortSideFit, LongSideFit, AreaFit, BottomLeft, ContactPoint
+     *         If don't pass rule, will try all rules, then chose the best one.
      * @return {Rect[]} The result of bin pack.
      */
-    insertRects(rectangles, method) {
-        if (!method) {
-            const methodList = [
+    insertRects(rectangles, rule) {
+        if (!rule) {
+            const ruleList = [
                 ShortSideFit,
                 LongSideFit,
                 AreaFit,
@@ -159,16 +161,16 @@ class MaxRectsBinPack {
             ];
             const resultList = [];
 
-            methodList.forEach((method, index) => {
+            ruleList.forEach((rule, index) => {
                 const rectList = this._cloneRectangles(rectangles);
                 this.reset();
-                const result = this.insertRects(rectList, method);
-                result._methodIndex = index;
+                const result = this.insertRects(rectList, rule);
+                result._ruleIndex = index;
 
                 if (result.done) {
                     resultList.push(result);
 
-                    // console.log(result.method, result.realWidth, result.realHeight);
+                    // console.log(result.rule, result.realWidth, result.realHeight);
                 }
             });
 
@@ -191,7 +193,7 @@ class MaxRectsBinPack {
             const bestRsult = resultList[0];
 
             this.reset();
-            return this.insertRects(rectangles, methodList[bestRsult._methodIndex]);
+            return this.insertRects(rectangles, ruleList[bestRsult._ruleIndex]);
         }
 
         let realWidth = -1;
@@ -199,7 +201,7 @@ class MaxRectsBinPack {
 
         const result = {
             rects: [],
-            method,
+            rule,
             width: realWidth,
             height: realHeight,
             realWidth,
@@ -228,7 +230,7 @@ class MaxRectsBinPack {
                 const score2 = {
                     value: 0
                 };
-                const newNode = this._scoreRectangle(rectangles[i].width, rectangles[i].height, method, score1, score2);
+                const newNode = this._scoreRectangle(rectangles[i].width, rectangles[i].height, rule, score1, score2);
 
                 if (score1.value < bestScore1 || (score1.value === bestScore1 && score2.value < bestScore2)) {
                     bestScore1 = score1.value;
@@ -329,11 +331,11 @@ class MaxRectsBinPack {
         this.usedRectangles.push(node);
     }
 
-    _scoreRectangle(width, height, method, score1, score2) {
+    _scoreRectangle(width, height, rule, score1, score2) {
         let newNode = new Rect();
         score1.value = Infinity;
         score2.value = Infinity;
-        switch (method) {
+        switch (rule) {
             case ShortSideFit:
                 newNode = this._findPositionForNewNodeShortSideFit(width, height, score1, score2);
                 break;

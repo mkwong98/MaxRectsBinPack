@@ -252,14 +252,14 @@ class MaxRectsBinPack {
             result.rects.push(rect);
         }
 
-        const outputCount = result.rects.length;
+        const packedCount = result.rects.length;
 
-        result.outputCount = outputCount;
+        result.packedCount = packedCount;
 
-        result.done = result.inputCount === outputCount;
+        result.done = result.inputCount === packedCount;
 
         if (this.padding) {
-            for (let i = 0; i < outputCount; i++) {
+            for (let i = 0; i < packedCount; i++) {
                 const rect = result.rects[i];
                 rect.x += this.padding;
                 rect.y += this.padding;

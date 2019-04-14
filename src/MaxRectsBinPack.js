@@ -10,6 +10,9 @@
  *
  * Ported to javascript by 06wj
  * https://github.com/06wj/MaxRectsBinPack
+ *
+ * Refactor & improve by finscn
+ * https://github.com/finscn/MaxRectsBinPack
  */
 import Rect from './Rect';
 
@@ -673,8 +676,7 @@ class MaxRectsBinPack {
 }
 
 export {
-    MaxRectsBinPack,
-    Rect,
+    MaxRectsBinPack as Packer,
 
     // Heuristics
     ShortSideFit,

@@ -40,6 +40,7 @@ class MaxRectsBinPack {
         Object.assign(this, {
             allowRotate: false,
             pot: false,
+            // TODO
             square: false,
             padding: 0,
         });
@@ -152,48 +153,7 @@ class MaxRectsBinPack {
      */
     insertRects(rectangles, rule) {
         if (!rule) {
-            const ruleList = [
-                ShortSideFit,
-                LongSideFit,
-                AreaFit,
-                BottomLeft,
-                ContactPoint,
-            ];
-            const resultList = [];
-
-            ruleList.forEach((rule, index) => {
-                const rectList = this._cloneRectangles(rectangles);
-                this.reset();
-                const result = this.insertRects(rectList, rule);
-                result._ruleIndex = index;
-
-                if (result.done) {
-                    resultList.push(result);
-
-                    // console.log(result.rule, result.realWidth, result.realHeight);
-                }
-            });
-
-            // resultList.sort((a, b) => {
-            //     let d = 0;
-            //     d = d || a.binArea - b.binArea;
-            //     d = d || a.realArea - b.realArea;
-            //     d = d || a.area - b.area;
-            //     return d;
-            // });
-
-            resultList.sort((a, b) => {
-                let d = 0;
-                d = d || a.area - b.area;
-                d = d || a.binArea - b.binArea;
-                d = d || a.realArea - b.realArea;
-                return d;
-            });
-
-            const bestRsult = resultList[0];
-
-            this.reset();
-            return this.insertRects(rectangles, ruleList[bestRsult._ruleIndex]);
+            rule = this.getBestRule(rectangles);
         }
 
         let realWidth = -1;
@@ -307,14 +267,59 @@ class MaxRectsBinPack {
             result.height = realHeight;
         }
 
-        if (this.square) {
-            result.width = Math.max(result.width, result.height);
-            result.height = Math.max(result.width, result.height);
-        }
+        // if (this.square) {
+        //     result.width = Math.max(result.width, result.height);
+        //     result.height = Math.max(result.width, result.height);
+        // }
 
         result.area = result.width * result.height;
 
         return result;
+    }
+
+    getBestRule(rectangles) {
+        const ruleList = [
+            ShortSideFit,
+            LongSideFit,
+            AreaFit,
+            BottomLeft,
+            ContactPoint,
+        ];
+        const resultList = [];
+
+        ruleList.forEach((rule, index) => {
+            const rectList = this._cloneRectangles(rectangles);
+            this.reset();
+            const result = this.insertRects(rectList, rule);
+            result._ruleIndex = index;
+
+            if (result.done) {
+                resultList.push(result);
+
+                // console.log(result.rule, result.realWidth, result.realHeight);
+            }
+        });
+        this.reset();
+
+        // resultList.sort((a, b) => {
+        //     let d = 0;
+        //     d = d || a.binArea - b.binArea;
+        //     d = d || a.realArea - b.realArea;
+        //     d = d || a.area - b.area;
+        //     return d;
+        // });
+
+        resultList.sort((a, b) => {
+            let d = 0;
+            d = d || a.area - b.area;
+            d = d || a.binArea - b.binArea;
+            d = d || a.realArea - b.realArea;
+            return d;
+        });
+
+        const bestRsult = resultList[0];
+
+        return ruleList[bestRsult._ruleIndex];
     }
 
     _placeRectangle(node) {
@@ -628,42 +633,50 @@ class MaxRectsBinPack {
     _splitFreeNode(freeNode, usedNode) {
         const freeRectangles = this.freeRectangles;
         // Test with SAT if the Rectangles even intersect.
-        if (usedNode.x >= freeNode.x + freeNode.width || usedNode.x + usedNode.width <= freeNode.x ||
-            usedNode.y >= freeNode.y + freeNode.height || usedNode.y + usedNode.height <= freeNode.y) return false;
+
+        const outOfRight = usedNode.x >= freeNode.x + freeNode.width || usedNode.x + usedNode.width <= freeNode.x;
+        const outOfBottom = usedNode.y >= freeNode.y + freeNode.height || usedNode.y + usedNode.height <= freeNode.y;
+
+        if (outOfRight || outOfBottom) {
+            return false;
+        }
+
         let newNode;
-        if (usedNode.x < freeNode.x + freeNode.width && usedNode.x + usedNode.width > freeNode.x) {
-            // New node at the top side of the used node.
-            if (usedNode.y > freeNode.y && usedNode.y < freeNode.y + freeNode.height) {
-                newNode = freeNode.clone();
-                newNode.height = usedNode.y - newNode.y;
-                freeRectangles.push(newNode);
-            }
-
-            // New node at the bottom side of the used node.
-            if (usedNode.y + usedNode.height < freeNode.y + freeNode.height) {
-                newNode = freeNode.clone();
-                newNode.y = usedNode.y + usedNode.height;
-                newNode.height = freeNode.y + freeNode.height - (usedNode.y + usedNode.height);
-                freeRectangles.push(newNode);
-            }
+        // if (usedNode.x < freeNode.x + freeNode.width && usedNode.x + usedNode.width > freeNode.x) {
+        // New node at the top side of the used node.
+        // if (usedNode.y > freeNode.y && usedNode.y < freeNode.y + freeNode.height) {
+        if (usedNode.y > freeNode.y) {
+            newNode = freeNode.clone();
+            newNode.height = usedNode.y - newNode.y;
+            freeRectangles.push(newNode);
         }
 
-        if (usedNode.y < freeNode.y + freeNode.height && usedNode.y + usedNode.height > freeNode.y) {
-            // New node at the left side of the used node.
-            if (usedNode.x > freeNode.x && usedNode.x < freeNode.x + freeNode.width) {
-                newNode = freeNode.clone();
-                newNode.width = usedNode.x - newNode.x;
-                freeRectangles.push(newNode);
-            }
-
-            // New node at the right side of the used node.
-            if (usedNode.x + usedNode.width < freeNode.x + freeNode.width) {
-                newNode = freeNode.clone();
-                newNode.x = usedNode.x + usedNode.width;
-                newNode.width = freeNode.x + freeNode.width - (usedNode.x + usedNode.width);
-                freeRectangles.push(newNode);
-            }
+        // New node at the bottom side of the used node.
+        if (usedNode.y + usedNode.height < freeNode.y + freeNode.height) {
+            newNode = freeNode.clone();
+            newNode.y = usedNode.y + usedNode.height;
+            newNode.height = freeNode.y + freeNode.height - (usedNode.y + usedNode.height);
+            freeRectangles.push(newNode);
         }
+        // }
+
+        // if (usedNode.y < freeNode.y + freeNode.height && usedNode.y + usedNode.height > freeNode.y) {
+        // New node at the left side of the used node.
+        // if (usedNode.x > freeNode.x && usedNode.x < freeNode.x + freeNode.width) {
+        if (usedNode.x > freeNode.x) {
+            newNode = freeNode.clone();
+            newNode.width = usedNode.x - newNode.x;
+            freeRectangles.push(newNode);
+        }
+
+        // New node at the right side of the used node.
+        if (usedNode.x + usedNode.width < freeNode.x + freeNode.width) {
+            newNode = freeNode.clone();
+            newNode.x = usedNode.x + usedNode.width;
+            newNode.width = freeNode.x + freeNode.width - (usedNode.x + usedNode.width);
+            freeRectangles.push(newNode);
+        }
+        // }
 
         return true;
     }

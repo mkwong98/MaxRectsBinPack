@@ -172,11 +172,19 @@ class MaxRectsBinPack {
                 }
             });
 
+            // resultList.sort((a, b) => {
+            //     let d = 0;
+            //     d = d || a.binArea - b.binArea;
+            //     d = d || a.realArea - b.realArea;
+            //     d = d || a.area - b.area;
+            //     return d;
+            // });
+
             resultList.sort((a, b) => {
                 let d = 0;
+                d = d || a.area - b.area;
                 d = d || a.binArea - b.binArea;
                 d = d || a.realArea - b.realArea;
-                d = d || a.area - b.area;
                 return d;
             });
 
@@ -619,8 +627,8 @@ class MaxRectsBinPack {
     _splitFreeNode(freeNode, usedNode) {
         const freeRectangles = this.freeRectangles;
         // Test with SAT if the Rectangles even intersect.
-        if (usedNode.x >= freeNode.x + freeNode.width || usedNode.x + usedNode.width <= freeNode.x
-            || usedNode.y >= freeNode.y + freeNode.height || usedNode.y + usedNode.height <= freeNode.y) return false;
+        if (usedNode.x >= freeNode.x + freeNode.width || usedNode.x + usedNode.width <= freeNode.x ||
+            usedNode.y >= freeNode.y + freeNode.height || usedNode.y + usedNode.height <= freeNode.y) return false;
         let newNode;
         if (usedNode.x < freeNode.x + freeNode.width && usedNode.x + usedNode.width > freeNode.x) {
             // New node at the top side of the used node.

@@ -39,8 +39,8 @@
     <script>
         var canvas = document.querySelector("#texture");
         var ctx = canvas.getContext("2d");
-        var textureWidth = 300;
-        var textureHeight = 300;
+        var textureWidth = 512;
+        var textureHeight = 512;
         canvas.width = textureWidth;
         canvas.height = textureHeight;
 
@@ -60,8 +60,15 @@
             }
         });
 
-        var pack = new MaxRectsBinPack.MaxRectsBinPack(textureWidth, textureHeight, false);
-        var result = pack.insert2(rectangles, MaxRectsBinPack.BestShortSideFit);
+        var pack = new MaxRectsBinPack.MaxRectsBinPack(textureWidth, textureHeight, {
+             allowRotate: true,
+             // pot: true,
+             // square: true,
+             // padding: true,
+        });
+        var result = pack.insertRects(rectangles, MaxRectsBinPack.ShortSideFit);
+
+        console.log(result)
 
         var imgs = {
             anim1:document.querySelector("#anim1"),
@@ -70,8 +77,29 @@
 
         //draw rectangles
         window.onload = function(){
-            result.forEach(function(rectangle){
-                ctx.drawImage(imgs[rectangle.imgName], rectangle.imgX, rectangle.imgY, rectangle.width, rectangle.height, rectangle.x, rectangle.y, rectangle.width, rectangle.height);
+            result.rects.forEach(function(rect){
+                var img = imgs[rect.imgName];
+                var sx = rect.imgX;
+                var sy = rect.imgY;
+                var sw = rect.width;
+                var sh = rect.height;
+
+                var dx = rect.x;
+                var dy = rect.y;
+                var dw = rect.width;
+                var dh = rect.height;
+
+                if (rect.rotated) {
+                    console.log(sx, sy);
+                    ctx.save();
+                    ctx.translate(dx, dy);
+                    ctx.rotate(Math.PI / 2);
+                    ctx.drawImage(img, sx, sy, sh, sw , 0, -dw, dh, dw);
+                    ctx.restore();
+
+                } else {
+                    ctx.drawImage(img, sx, sy, sw, sh , dx, dy, dw,dh);
+                }
             });
         }
     </script>

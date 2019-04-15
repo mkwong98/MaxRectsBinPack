@@ -39,8 +39,8 @@
     <script>
         var canvas = document.querySelector("#texture");
         var ctx = canvas.getContext("2d");
-        var textureWidth = 512;
-        var textureHeight = 512;
+        var textureWidth = 2048;
+        var textureHeight = 2048;
         canvas.width = textureWidth;
         canvas.height = textureHeight;
 
@@ -61,13 +61,13 @@
         });
 
         var pack = new MaxRectsBinPack.Packer(textureWidth, textureHeight, {
-             // allowRotate: true,
-             // pot: true,
+             allowRotate: true,
+             pot: true,
              // square: true,
-             // padding: true,
+             // padding: 0,
         });
-        // var result = pack.insertRects(rectangles, MaxRectsBinPack.ShortSideFit);
-        var result = pack.insertRects(rectangles);
+        var result = pack.insertRects(rectangles, MaxRectsBinPack.ShortSideFit);
+        // var result = pack.insertRects(rectangles);
 
         console.log(result)
 
@@ -82,15 +82,16 @@
                 var img = imgs[rect.imgName];
                 var sx = rect.imgX;
                 var sy = rect.imgY;
-                var sw = rect.width;
-                var sh = rect.height;
+                var f = rect.fitInfo;
 
-                var dx = rect.x;
-                var dy = rect.y;
-                var dw = rect.width;
-                var dh = rect.height;
+                var sw = f.width;
+                var sh = f.height;
+                var dx = f.x;
+                var dy = f.y;
+                var dw = f.width;
+                var dh = f.height;
 
-                if (rect.rotated) {
+                if (f.rotated) {
                     console.log(sx, sy);
                     ctx.save();
                     ctx.translate(dx, dy);

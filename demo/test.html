@@ -34,7 +34,8 @@
     </div>
     <h3>merged image</h3>
     <canvas id="texture"></canvas>
-    <script src="../build/MaxRectsBinPack.js"></script>
+    <script src="../no_build/Rect.js"></script>
+    <script src="../no_build/MaxRectsBinPack.js"></script>
     <script src="./data.js"></script>
     <script>
         var canvas = document.querySelector("#texture");
@@ -60,7 +61,7 @@
             }
         });
 
-        var pack = new MaxRectsBinPack.Packer(textureWidth, textureHeight, {
+        var pack = new MaxRectsBinPack(textureWidth, textureHeight, {
              allowRotate: true,
              pot: true,
              // square: true,

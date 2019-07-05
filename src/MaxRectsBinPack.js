@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Based on the Public Domain MaxRectanglesBinPack.cpp source by Jukka Jylänki
  * https://github.com/juj/RectangleBinPack/
  *
@@ -683,6 +683,7 @@ class MaxRectsBinPack {
                 }
                 if (Rect.isContainedIn(freeRectangles[j], freeRectangles[i])) {
                     freeRectangles.splice(j, 1);
+                    j--;
                 }
             }
         }

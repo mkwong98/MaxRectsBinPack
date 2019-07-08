@@ -184,6 +184,12 @@ class MaxRectsBinPack {
             }
         }
 
+        for (let i = 0; i < inputCount; i++) {
+            if(!rectangles[i].count){
+                rectangles[i].count = 1;
+            }
+        }
+
         while (rectangles.length > 0) {
             let bestScore1 = Infinity;
             let bestScore2 = Infinity;
@@ -213,7 +219,14 @@ class MaxRectsBinPack {
 
             this._placeRectangle(bestNode);
 
-            const rect = rectangles.splice(bestRectangleIndex, 1)[0];
+            const rect = JSON.parse(JSON.stringify(rectangles[bestRectangleIndex]));
+
+            if(rect.count == 1){
+                rectangles.splice(bestRectangleIndex, 1);
+            }
+            else{
+                rectangles[bestRectangleIndex].count--; 
+            }
 
             const fitInfo = {
                 x: bestNode.x,

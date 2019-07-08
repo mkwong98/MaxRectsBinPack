@@ -596,6 +596,8 @@ class MaxRectsBinPack {
         }
 
         this._pruneFreeList();
+        this._mergeConnectedFreeRect();
+        this._pruneFreeList();
         this.usedRectangles.push(node);
     }
 
@@ -687,6 +689,53 @@ class MaxRectsBinPack {
                 }
             }
         }
+    }
+
+    _mergeConnectedFreeRect(){
+        const freeRectangles = this.freeRectangles;
+        const origLen = freeRectangles.length;
+        for (let i = 0; i < origLen; i++) {
+	    const workTo = freeRectangles.length;
+            for (let j = i + 1; j < workTo; j++) {
+        	const outOfRight = freeRectangles[i].x > freeRectangles[j].x + freeRectangles[j].width || freeRectangles[i].x + freeRectangles[i].width < freeRectangles[j].x;
+        	const outOfBottom = freeRectangles[i].y > freeRectangles[j].y + freeRectangles[j].height || freeRectangles[i].y + freeRectangles[i].height < freeRectangles[j].y;
+		const isContained = Rect.isContainedIn(freeRectangles[i], freeRectangles[j]) || Rect.isContainedIn(freeRectangles[j], freeRectangles[i]);
+
+	        if (!(outOfRight || outOfBottom || isContained)) {
+        	    let newNode;
+
+                    newNode = new Rect();
+                    newNode.x = Math.min(freeRectangles[i].x, freeRectangles[j].x);
+                    newNode.width = Math.max(freeRectangles[i].x + freeRectangles[i].width, freeRectangles[j].x + freeRectangles[j].width) - newNode.x;
+                    newNode.y = Math.max(freeRectangles[i].y, freeRectangles[j].y);
+		    newNode.height = Math.min(freeRectangles[i].y + freeRectangles[i].height, freeRectangles[j].y + freeRectangles[j].height) - newNode.y;
+		    if(newNode.height > 0){
+			let hasContained = false;
+			for (let k = 0; k < freeRectangles.length; k++) {
+			    hasContained |= Rect.isContainedIn(newNode, freeRectangles[k])
+			}
+			if(!hasContained){
+                    	    freeRectangles.push(newNode);
+			}
+		    }	
+
+                    newNode = new Rect();
+                    newNode.x = Math.max(freeRectangles[i].x, freeRectangles[j].x);
+                    newNode.width = Math.min(freeRectangles[i].x + freeRectangles[i].width, freeRectangles[j].x + freeRectangles[j].width) - newNode.x;
+                    newNode.y = Math.min(freeRectangles[i].y, freeRectangles[j].y);
+		    newNode.height = Math.max(freeRectangles[i].y + freeRectangles[i].height, freeRectangles[j].y + freeRectangles[j].height) - newNode.y;
+		    if(newNode.width > 0 && !Rect.isContainedIn(newNode, freeRectangles[i]) && !Rect.isContainedIn(newNode, freeRectangles[j])){
+			let hasContained = false;
+			for (let k = 0; k < freeRectangles.length; k++) {
+			    hasContained |= Rect.isContainedIn(newNode, freeRectangles[k])
+			}
+			if(!hasContained){
+                    	    freeRectangles.push(newNode);
+			}
+		    }			
+        	}
+            }
+        }        
     }
 
     _occupancy() {

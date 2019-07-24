@@ -183,12 +183,12 @@ class MaxRectsBinPack {
                 rect.height += padding2;
             }
         }
-
+        
         for (let i = 0; i < inputCount; i++) {
             if(!rectangles[i].count){
                 rectangles[i].count = 1;
             }
-        }
+        }        
 
         while (rectangles.length > 0) {
             let bestScore1 = Infinity;
@@ -227,7 +227,7 @@ class MaxRectsBinPack {
             else{
                 rectangles[bestRectangleIndex].count--; 
             }
-
+            
             const fitInfo = {
                 x: bestNode.x,
                 y: bestNode.y,
@@ -703,7 +703,7 @@ class MaxRectsBinPack {
             }
         }
     }
-
+    
     _mergeConnectedFreeRect(){
         const freeRectangles = this.freeRectangles;
         const origLen = freeRectangles.length;

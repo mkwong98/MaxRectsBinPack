@@ -183,12 +183,12 @@ class MaxRectsBinPack {
                 rect.height += padding2;
             }
         }
-        
+
         for (let i = 0; i < inputCount; i++) {
             if(!rectangles[i].count){
                 rectangles[i].count = 1;
             }
-        }        
+        }
 
         while (rectangles.length > 0) {
             let bestScore1 = Infinity;
@@ -225,9 +225,9 @@ class MaxRectsBinPack {
                 rectangles.splice(bestRectangleIndex, 1);
             }
             else{
-                rectangles[bestRectangleIndex].count--; 
+                rectangles[bestRectangleIndex].count--;
             }
-            
+
             const fitInfo = {
                 x: bestNode.x,
                 y: bestNode.y,
@@ -545,7 +545,7 @@ class MaxRectsBinPack {
                     bestNode.y = rect.y;
                     bestNode.width = width;
                     bestNode.height = height;
-                    bestContactScore = score;
+                    bestContactScore.value = score;
                 }
             }
 
@@ -703,7 +703,7 @@ class MaxRectsBinPack {
             }
         }
     }
-    
+
     _mergeConnectedFreeRect(){
         const freeRectangles = this.freeRectangles;
         const origLen = freeRectangles.length;
@@ -730,7 +730,7 @@ class MaxRectsBinPack {
 			if(!hasContained){
                     	    freeRectangles.push(newNode);
 			}
-		    }	
+		    }
 
                     newNode = new Rect();
                     newNode.x = Math.max(freeRectangles[i].x, freeRectangles[j].x);
@@ -745,10 +745,10 @@ class MaxRectsBinPack {
 			if(!hasContained){
                     	    freeRectangles.push(newNode);
 			}
-		    }			
+		    }
         	}
             }
-        }        
+        }
     }
 
     _occupancy() {
